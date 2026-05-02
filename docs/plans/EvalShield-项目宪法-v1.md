@@ -282,6 +282,16 @@ EvalShield 不允许漂移成：
 - runtime orchestration
 - agent identity / auth 平台
 
+## 长期愿景
+
+v1 回答 "这次 run 有没有作弊"（Run Integrity）。
+长期目标是回答 "这个分数能不能用来做模型比较和路线决策"。
+这需要完整信任链：Raw Scores → Output Calibration → Run Integrity → Benchmark Validity。
+
+信任层与执行层（v1/v1.1/v2）正交。信任层用描述性名称，实施顺序用 Phase 1/2/3 表示。
+详见 `EvalShield-架构演进路线图-v0.md`。
+本文件不改变 v1 的任何边界。
+
 ## 反漂移门
 
 任何新增提议都必须回答下面五个问题：

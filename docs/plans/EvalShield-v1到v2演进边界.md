@@ -26,6 +26,7 @@ v1.1 仍然留在 v1 边界内，只做增强，不改本质。
 - richer replay diagnostics
 - richer exploit corpus
 - 更完整 adapter 文档
+- upstream provenance diagnostics，不新增第四类 trust-failure family
 - 更细错误分类
 - 更强 casebook 组织能力
 
@@ -116,7 +117,42 @@ v2a 只做：
 - dashboard-first
 - 通用平台抽象
 
-## 8. 一句话总结
+## 8. 超越 v2：双轨版本线
 
-v1 建立 trust truth。
+v1 和 v2 都只在 "Run Integrity" 层。完整信任链需要往上扩展，但信任层的演进与执行层正交：
+
+```
+执行层（Execution Layer）：
+  v1   → 单机单次 run
+  v1.1 → 增强
+  v2   → 分布式执行
+
+信任层（Trust Layer）—— 用描述性名称，不用 L 编号：
+  Run Integrity         → 这次 run 有没有作弊（v1 已覆盖）
+  Output Calibration    → 模型的置信度是否准确（不依赖分布式）
+  Benchmark Validity    → 题目是否测了它声称要测的能力（不依赖分布式）
+```
+
+两个维度正交：
+- Output Calibration 不依赖 v2（你可以在单机上做置信度校准）
+- v2 不自动带来 Output Calibration（分布式不等于校准）
+- Benchmark Validity 不依赖 v2 或 Output Calibration（可以独立做）
+
+### 实施顺序用 Phase 表示
+
+```
+Phase 1 → Run Integrity（v1 已覆盖）
+Phase 2 → Output Calibration（v1 稳定后即可开始，不等 v2）
+Phase 3 → Benchmark Validity（Phase 2 完成后）
+```
+
+详见 `EvalShield-架构演进路线图-v0.md`。
+```
+
+详见 `EvalShield-架构演进路线图-v0.md`。
+
+## 9. 一句话总结
+
+v1 建立 run integrity truth。
 v2 把这套 truth 扩展到 distributed execution。
+Output Calibration 和 Benchmark Validity 是信任能力的独立扩展，与执行层版本正交。

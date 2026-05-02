@@ -7,7 +7,8 @@
 1. 单次 run 是核心对象
 2. 真相源必须收口
 3. 判断与展示分离
-4. 先逻辑分层，后物理拆分
+4. 上游评测系统只通过 adapter 进入 canonical contracts
+5. 先逻辑分层，后物理拆分
 
 ## 2. 模块总览
 
@@ -23,22 +24,22 @@ v1 建议拆成七个核心模块：
 ## 3. 模块职责
 
 ### 3.1 Contracts
-负责：定义核心对象、字段规则、版本规则、digest 规则。
+负责：定义核心对象、字段规则、版本规则、digest 规则、上游 workflow provenance 字段。
 不负责：业务逻辑、detector 逻辑、verdict 聚合、report 渲染。
 复杂度：4 / 5
 
 ### 3.2 Ingest
-负责：读取外部 benchmark run 产物、校验输入、映射 exemplar、归一化 canonical bundle。
+负责：读取外部 benchmark run 产物、校验输入、映射 exemplar / upstream adapter、归一化 canonical bundle、记录 ingest notes 与 provenance refs。
 不负责：detector findings、trust verdict、report、casebook。
 复杂度：3 / 5
 
 ### 3.3 Detectors
-负责：对 canonical run 做 leakage / exploit / replay mismatch 检测，输出 `DetectorFinding`。
+负责：对 canonical run 做 leakage / exploit / replay mismatch 检测，并对上游 provenance 完整性输出 system findings。
 不负责：最终 verdict、直接改 artifacts、直接生成 casebook。
 复杂度：4 / 5
 
 ### 3.4 Trust Engine
-负责：聚合 findings、应用 verdict policy、生成 `trusted / suspect / invalid`、选择 primary reasons。
+负责：聚合 findings、应用 verdict policy、生成 `trusted / suspect / invalid`、选择 primary reasons；保证 system provenance 风险不会压过高危 leakage / exploit。
 不负责：直接读 raw benchmark 格式、做 detector 细节判断、report 版式。
 复杂度：3 / 5
 
@@ -61,9 +62,9 @@ v1 建议拆成七个核心模块：
 
 | 模块 | 负责 | 不负责 | 复杂度 |
 |---|---|---|---|
-| Contracts | truth objects、字段规则、版本规则 | 检测、聚合、展示 | 4 / 5 |
-| Ingest | 输入读取、校验、归一化 | detector、verdict、report | 3 / 5 |
-| Detectors | 输出 findings | 决定最终 verdict | 4 / 5 |
+| Contracts | truth objects、字段规则、版本规则、upstream provenance 字段 | 检测、聚合、展示 | 4 / 5 |
+| Ingest | 输入读取、校验、归一化、adapter provenance refs | detector、verdict、report | 3 / 5 |
+| Detectors | 输出 leakage / exploit / replay findings 与 system provenance findings | 决定最终 verdict | 4 / 5 |
 | Trust Engine | findings -> verdict | 直接读 raw artifacts | 3 / 5 |
 | Replay | replay bundle、divergence | 最终结论 | 3.5 / 5 |
 | Reporting | human-readable 输出 | 定义 truth | 2.5 / 5 |
@@ -71,10 +72,29 @@ v1 建议拆成七个核心模块：
 
 ## 5. v1 先做什么，后做什么
 
-先做：Contracts、Ingest、Detector 接口。
+先做：Contracts、Ingest、Detector 接口，包括 upstream provenance 字段预留。
 后做：Trust Engine、Replay、Reporting、Casebook。
-绝不能一开始就做：分布式调度、hosted service、dashboard、通用平台。
+绝不能一开始就做：分布式调度、hosted service、dashboard、通用平台、One-Eval 完整 runner 集成。
 
-## 6. 一句话总结
+## 6. 未来模块（Phase 2 / Phase 3）
 
-EvalShield 的模块拆分不是为了显得复杂，而是为了把“单次 run 的可信判断”拆成一条清晰、可审计、可演进的系统链路。
+以下模块在 v1 实现期间不创建，属于信任层演进方向：
+
+### Phase 2: Output Calibration
+- `calibration/` 模块 — 置信度分析、ECE 计算、overconfidence 检测
+- 复杂度预估：3.5 / 5
+- 依赖：模型 logprobs 或多次采样一致性
+
+### Phase 3: Benchmark Validity
+- `ablation/` 模块 — 模态消融测试框架
+- `validity/` 模块 — B-Clean pipeline、VDS 计算、BenchmarkValidityReport
+- 复杂度预估：4 / 5
+- 依赖：benchmark 题目模态可控、多个模型 API 访问
+
+这些模块与 v1 的七个核心模块独立，不修改 v1 模块边界。
+
+详见 `EvalShield-架构演进路线图-v0.md`。
+
+## 7. 一句话总结
+
+EvalShield 的模块拆分不是为了显得复杂，而是为了把"单次 run 的可信判断"拆成一条清晰、可审计、可演进的系统链路。

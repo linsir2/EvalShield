@@ -107,3 +107,14 @@ v1 成功的最小判断标准：
 2. 支持至少 1 套 PR-review benchmark adapter
 3. 拥有 3-5 个 curated cases
 4. 能明确说明为什么这次分数可信 / 不可信
+
+## 12. 长期演进方向
+
+v1 聚焦 Run Integrity。完整信任链还需要：
+
+- Output Calibration — 检测模型置信度是否校准（Phase 2）
+- Benchmark Validity — 检测 benchmark 是否在测它声称要测的能力（Phase 3）
+
+信任层与执行层（v1/v1.1/v2）正交，不互相绑定。信任层用描述性名称，实施顺序用 Phase 1/2/3 表示。
+
+详见 `EvalShield-架构演进路线图-v0.md`。

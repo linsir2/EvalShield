@@ -9,6 +9,14 @@
 
 当前仓库以设计文档为主，状态为：**Design Freeze Complete / 实现前阶段**。
 
+## 长期方向
+
+EvalShield 的终极目标是建立完整信任链：
+Raw Scores → Output Calibration → Run Integrity → Benchmark Validity。
+
+v1 聚焦 Run Integrity。信任层与执行层（v1/v2）正交演进。
+详见 `docs/plans/EvalShield-架构演进路线图-v0.md`。
+
 ## 建议阅读顺序
 
 1. `docs/plans/文档导航.md`

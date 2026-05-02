@@ -8,6 +8,7 @@
 1. CLI 能对单次 PR-review benchmark artifact bundle 输出：raw score、verdict、primary reasons、evidence refs、replay bundle 路径、report 路径。
 2. Python library 能返回同样的结构化 verdict 对象。
 3. 至少实现 1 套 PR-review benchmark adapter。
+3a. 只预留上游评测系统 provenance 字段；One-Eval adapter design spike 不阻塞 v1，且不进入 v1 必交付。
 4. 至少沉淀 3-5 个 curated cases。
 
 ### 工程层
@@ -46,11 +47,11 @@
 验证：contract tests 通过。
 
 ### Step 2. Ingest + Normalization
-目标：支持 exemplar -> canonical bundle。
-验证：known-good exemplar 成功，malformed exemplar fail loud。
+目标：支持 exemplar -> canonical bundle，并保留上游评测系统 provenance refs。
+验证：known-good exemplar 成功，malformed exemplar fail loud；缺失上游 raw evidence 时有明确 ingest note。
 
 ### Step 3. Detector Runtime
-目标：建立 detector protocol，并实现三类 family 的最小规则。
+目标：建立 detector protocol，实现三类 trust-failure family 的最小规则，并支持 system provenance findings。
 验证：detector 只接受 canonical `RunArtifact`，输出合法 `DetectorFinding`。
 
 ### Step 4. Trust Engine
@@ -78,9 +79,11 @@
 - replay divergence formatting
 - case record writing / index generation
 - evidence pointer parsing / validation
+- upstream provenance field validation
 
 ### Integration Tests
 - external artifact -> normalized `RunArtifact`
+- upstream workflow provenance -> canonical refs / ingest notes
 - `RunArtifact` -> findings -> verdict
 - verdict -> evidence pack / report
 - report + replay bundle -> casebook record
@@ -94,6 +97,8 @@
 3. replay mismatch case
 4. mixed-case with conflicting findings
 5. clean trusted run
+6. upstream report-only suspect run
+7. upstream human override unaudited suspect run
 
 ## 5. 风险与缓解
 
